@@ -159,10 +159,8 @@ def make_server(address, port, application):
 
 if __name__ == '__main__':
     pass
-    # print('何必')
     # module = 'flask_demo'
     # module = __import__(module)
-    # print('何')
     # app = 'app'
     # app = getattr(module, app)
     # print('app', app)
