@@ -1,8 +1,13 @@
-import http.client
 from jinja2 import Environment, PackageLoader
 from web_server import make_server
-# from jinja2 import Environment, FileSystemLoader
-import os.path
+from urls.resolvers import re_route
+import logging
+
+
+logging.basicConfig(level=logging.INFO,
+                    filename='output.log',
+                    datefmt='%Y/%m/%d %H:%M:%S',
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 class Dawn(object):
@@ -18,7 +23,28 @@ class Dawn(object):
         return Response([template])
 
     def error(self, request):
-        return Response(['<h1>NOT FOUND</h1>'])
+        return Response(['<h1>NOT FOUND</h1>'], 404)
+
+    def handle(self, path, r):
+        path = path.split('/')
+        for url in r:
+            url_list = url.split('/')
+            if len(url_list) == len(path):
+                self.match(path, url_list)
+
+    def match(self, path, url_list):
+        result = {}
+        if len(url_list) == len(path):
+            for i in range(len(url_list)):
+                result = {}
+                if url_list[i][0] == '<' and url_list[i][-1] == '>':
+                    utype, var = url_list[i][1:-1].split(':')
+                    try:
+                        result[var] = utype(path[i])
+                    except Exception as e:
+                        logging.error('')
+
+        return
 
     def run(self, host='localhost', port=2000):
         http = make_server(host, port, self)
@@ -29,14 +55,22 @@ class Dawn(object):
         }
         from route import route_dict
         r.update(route_dict)
-        response = r.get(path, self.error)
-        return response(request)
+        path, kwarg = re_route(path, r)
+        response = r.get(path)
+        # print('debug', response(request, **kwarg))
+        try:
+            if response is None:
+                logging.warning('Invalid routing address {}'.format(path))
+                response = self.error
+                return response(request)
+            return response(request, **kwarg)
+        except Exception as e:
+            logging.error('The routing application has errors', exc_info=True)
 
     def wsgi_app(self, environ, start_response):
         request = Request(environ)
-
         response = self.response_for_path(request, request.path)
-
+        print('debug', response)
         start_response(
             response.status,
             response.items()

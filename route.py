@@ -1,6 +1,7 @@
-from app import hello, template
+from app import hello, template, year
 
 route_dict = {
-    '/hello': hello,
-    '/': template,
+    'hello/': hello,
+    '': template,
+    'mm/<int:year>/<int:month>': year,
 }
