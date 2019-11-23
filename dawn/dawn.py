@@ -43,7 +43,6 @@ class Dawn(object):
                         result[var] = utype(path[i])
                     except Exception as e:
                         logging.error('')
-
         return
 
     def run(self, host='localhost', port=2000):
@@ -51,13 +50,11 @@ class Dawn(object):
         http.run()
 
     def response_for_path(self, request, path):
-        r = {
-        }
+        r = {}
         from route import route_dict
         r.update(route_dict)
         path, kwarg = re_route(path, r)
         response = r.get(path)
-        # print('debug', response(request, **kwarg))
         try:
             if response is None:
                 logging.warning('Invalid routing address {}'.format(path))

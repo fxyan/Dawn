@@ -17,6 +17,7 @@ def _route_regex(route):
     converters = {}
     while True:
         match = _PATH_RE.search(route)
+        print('match', match)
         if not match:
             part.append(re.escape(route))
             break

@@ -5,7 +5,6 @@ import sys
 
 
 class EventLoop:
-
     def __init__(self, selector=None):
         if selector is None:
             selector = selectors.DefaultSelector()
@@ -90,7 +89,6 @@ class WSGIEchoServer:
         for msg in data:
             k, v = msg.split(':', 1)
             self.request_dict[k] = v
-        print(self.request_dict)
 
     def get_env(self):
         env = {}
@@ -148,6 +146,7 @@ class WSGIEchoServer:
         conn.sendall(response)
         self._loop.selector.unregister(conn)
         conn.close()
+        self.num -= 1
 
 
 def make_server(address, port, application):
